@@ -1,4 +1,4 @@
-import User from "../models/User";
+import User from "../models/User.js";
 
 /* READ API LOGIC */
 export const getUser = async (req, res) => {
