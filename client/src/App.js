@@ -24,7 +24,7 @@ function App() {
   const dispatch = useDispatch();
   useEffect(() => {
     dispatch(getPosts());
-  }, [currentId, dispatch]);
+  }, [currentId]);
   return (
     <Container maxWidth="lg">
       <StyledAppBar position="static" color="inherit">
