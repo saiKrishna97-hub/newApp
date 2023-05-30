@@ -12,8 +12,11 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import MoreHoriZIcon from "@mui/icons-material/MoreHoriz";
 import moment from "moment";
 import { styled } from "@mui/system";
+import { useDispatch } from "react-redux";
+import { deletePost } from "../../../actions/posts";
 
 const Post = ({ post, setCurrentId }) => {
+  const dispatch = useDispatch();
   const StyledCard = styled(Card)({
     display: "flex",
     flexDirection: "column",
@@ -53,6 +56,9 @@ const Post = ({ post, setCurrentId }) => {
   const StyleTitle = styled(Typography)({
     padding: "0 16px",
   });
+  const handleDelete = (postId) => {
+    dispatch(deletePost(postId));
+  };
   return (
     <StyledCard>
       <StyledMedia image={post.selectedFile} />
@@ -89,7 +95,13 @@ const Post = ({ post, setCurrentId }) => {
           <ThumbUpAltIcon fontSize="small" />
           Like
         </Button>
-        <Button size="small" color="primary" onClick={() => {}}>
+        <Button
+          size="small"
+          color="primary"
+          onClick={() => {
+            handleDelete(post._id);
+          }}
+        >
           <DeleteIcon fontSize="small" />
           Delete
         </Button>
