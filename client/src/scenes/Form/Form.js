@@ -104,7 +104,7 @@ const Form = ({ currentId, setCurrentId }) => {
           fullWidth
           value={postData.tags}
           onChange={(event) =>
-            setPostData({ ...postData, tags: event.target.value })
+            setPostData({ ...postData, tags: event.target.value.split(",") })
           }
         />
         <StyledFileInput>
