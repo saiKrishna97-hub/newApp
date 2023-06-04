@@ -116,7 +116,7 @@ const Form = ({ currentId, setCurrentId }) => {
             }
           />
           <Button
-            sx={{ marginBottom: 1 }}
+            sx={{ marginBottom: 1, marginTop: 1 }}
             variant="contained"
             color="primary"
             size="large"

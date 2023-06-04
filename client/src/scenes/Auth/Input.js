@@ -3,7 +3,15 @@ import React from "react";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 
-const Input = ({ name, half, handleChange, label, type, autoFocus }) => {
+const Input = ({
+  name,
+  half,
+  handleChange,
+  label,
+  type,
+  autoFocus,
+  handleShowPassword,
+}) => {
   return (
     <Grid item xs={12} sm={half ? 6 : 12}>
       <TextField
@@ -19,7 +27,7 @@ const Input = ({ name, half, handleChange, label, type, autoFocus }) => {
             ? {
                 endAdornment: (
                   <InputAdornment position="end">
-                    <IconButton>
+                    <IconButton onClick={handleShowPassword}>
                       {type === "password" ? <Visibility /> : <VisibilityOff />}
                     </IconButton>
                   </InputAdornment>

@@ -10,6 +10,11 @@ import {
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Input from "./Input";
 import { createTheme, styled } from "@mui/system";
+import { useGoogleLogin } from "@react-oauth/google";
+import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import Icon from "./icon.js";
 
 const Auth = () => {
   const theme = createTheme({
@@ -35,12 +40,37 @@ const Auth = () => {
   const StyledSubmit = styled(Button)({
     margin: theme.spacing(3, 0, 2),
   });
+  const StyledGoogleButton = styled(Button)({
+    margin: theme.spacing(2, 0, 2),
+  });
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [isSignUp, setIsSignUp] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const handleShowPassword = () => setShowPassword(!showPassword);
   const switchPage = () => {
     setIsSignUp((prevState) => !prevState);
+    setShowPassword(false);
   };
   const handleChange = () => {};
+  const login = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      const token = tokenResponse.access_token;
+      // fetching userinfo can be done on the client or the server
+      const userInfo = await axios
+        .get("https://www.googleapis.com/oauth2/v3/userinfo", {
+          headers: { Authorization: `Bearer ${tokenResponse.access_token}` },
+        })
+        .then((res) => res.data);
+      console.log("info", userInfo);
+      try {
+        dispatch({ type: "AUTH", data: { userInfo, token } });
+        navigate("/");
+      } catch (error) {
+        console.log(error);
+      }
+    },
+  });
   return (
     <Container component="main" maxWidth="xs">
       <StyledPaper elevation={3}>
@@ -59,13 +89,13 @@ const Auth = () => {
                   label="First Name"
                   autoFocus
                   half
-                  onChange={handleChange}
+                  handleChange={handleChange}
                 />
                 <Input
                   name="last name"
                   label="Last Name"
                   half
-                  onChange={handleChange}
+                  handleChange={handleChange}
                 />
               </>
             )}
@@ -73,20 +103,21 @@ const Auth = () => {
               name="email"
               label="Email Address"
               type="email"
-              onChange={handleChange}
+              handleChange={handleChange}
             />
             <Input
               name="password"
               label="Enter Password"
               type={showPassword ? "text" : "password"}
-              onChange={handleChange}
+              handleShowPassword={handleShowPassword}
+              handleChange={handleChange}
             />
             {isSignUp && (
               <Input
                 name="confirmPassword"
                 label="Confirm Password"
                 type="password"
-                onChange={handleChange}
+                handleChange={handleChange}
               />
             )}
           </Grid>
@@ -99,6 +130,16 @@ const Auth = () => {
           >
             {isSignUp ? "Sign Up" : "Sign In"}
           </StyledSubmit>
+          <StyledGoogleButton
+            type="submit"
+            startIcon={<Icon />}
+            variant="contained"
+            color="primary"
+            fullWidth
+            onClick={login}
+          >
+            Google Sign In
+          </StyledGoogleButton>
           <Grid container justify="flex-end">
             <Button onClick={switchPage}>
               {isSignUp

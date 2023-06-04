@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { AppBar, Avatar, Button, Toolbar, Typography } from "@mui/material";
 import memories from "../../Images/memories.png";
 import { styled } from "@mui/system";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { createTheme } from "@mui/system";
 import { deepPurple } from "@mui/material/colors";
+import { useDispatch } from "react-redux";
 
 const Navbar = () => {
   const StyledAppBar = styled(AppBar)({
@@ -31,7 +32,7 @@ const Navbar = () => {
   const StyledProfile = styled("div")({
     display: "flex",
     justifyContent: "space-between",
-    width: "400px",
+    width: "250px",
   });
   const StyledUserName = styled(Typography)({
     display: "flex",
@@ -50,7 +51,18 @@ const Navbar = () => {
   //     display: 'flex',
   //     alignItems: 'center',
   //   },
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(JSON.parse(localStorage.getItem("profile")));
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    setUser(JSON.parse(localStorage.getItem("profile")));
+  }, [user]);
+  const logout = () => {
+    dispatch({ type: "LOGOUT" });
+    navigate("/auth");
+    setUser(null);
+  };
   return (
     <StyledAppBar position="static" color="inherit">
       <div>
@@ -62,11 +74,13 @@ const Navbar = () => {
       <StyledToolbar>
         {user ? (
           <StyledProfile>
-            <StyledAvatar alt={user?.result.name} src={user?.result.imageUrl}>
-              {user?.result.name.charAt(0)}
+            <StyledAvatar alt={user.userInfo.name} src={user.userInfo.picture}>
+              {user.userInfo.name.charAt(0)}
             </StyledAvatar>
-            <StyledUserName variant="h6">{user}</StyledUserName>
-            <Button color="secondary">Logout</Button>
+            <StyledUserName variant="h6">{user.userInfo.name}</StyledUserName>
+            <Button color="secondary" onClick={logout}>
+              Logout
+            </Button>
           </StyledProfile>
         ) : (
           <Button component={Link} to="/auth" color="primary">
