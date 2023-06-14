@@ -1,75 +1,51 @@
 import User from "../models/User.js";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
 /* READ API LOGIC */
-export const getUser = async (req, res) => {
+export const signIn = async (req, res) => {
+  const { email, password } = req.body;
   try {
-    const { id } = req.params;
-    const user = await User.findById(id);
-    res.status(200).json(user);
+    const existingUser = await User.findOne({ email });
+    if (!existingUser)
+      return res.status(404).json({ message: "Email Address doesn't exist" });
+    const isPasswordCorrect = await bcrypt.compare(
+      password,
+      existingUser.password
+    );
+    if (!isPasswordCorrect)
+      return res.status(406).json({ message: "Wrong password" });
+    const token = jwt.sign({ id: existingUser._id }, process.env.JWT_SECRET, {
+      expiresIn: "1h",
+    });
+    res.status(200).json({ result: existingUser, token });
   } catch (err) {
-    res.status(404).json({ error: errorMonitor.messsage });
+    res.status(500).json({ message: "Something is wrong" });
   }
 };
 
-export const getUserFriends = async (req, res) => {
+export const signUp = async (req, res) => {
+  const { email, password, confirmPassword, firstName, lastName } = req.body;
   try {
-    const { id } = req.params;
-    const user = await User.findById(id);
+    const existingUser = await User.findOne({ email });
+    if (existingUser)
+      return res.status(400).json({ message: "Email Address already exists" });
 
-    const friends = await Promise.all(
-      user.friends.map((id) => User.findById(id))
-    );
+    if (password !== confirmPassword)
+      return res.status(400).json({ message: "Password don't match." });
 
-    const friendList = friends.map(
-      ({ _id, firstName, lastName, location, occupation, picturePath }) => {
-        return {
-          _id,
-          firstName,
-          lastName,
-          location,
-          occupation,
-          picturePath,
-        };
-      }
-    );
+    const hashPassword = await bcrypt.hash(password, 12);
 
-    res.status(200).json(friendList);
+    const result = await User.create({
+      email,
+      password: hashPassword,
+      name: `${firstName} ${lastName}`,
+    });
+    const token = jwt.sign({ id: result._id }, process.env.JWT_SECRET, {
+      expiresIn: "1h",
+    });
+    res.status(200).json({ result, token });
   } catch (err) {
-    res.status(404).json({ error: errorMonitor.messsage });
-  }
-};
-
-/* UPDATE API LOGIC */
-export const addRemoveFriend = async (req, res) => {
-  try {
-    const { id, friendId } = req.params;
-    const user = await User.findById(id);
-    const friend = await User.findById(friendId);
-
-    if (user.friends.Includes(friendId)) {
-      user.friends = user.friends.filter((id) => id !== friendId);
-      friend.friends = friend.friends.filter((id) => id !== id);
-    } else {
-      user.friends.push(friendId);
-      friend.friends.push(id);
-    }
-    await user.save();
-    await friend.save();
-
-    const friendList = friends.map(
-      ({ _id, firstName, lastName, location, occupation, picturePath }) => {
-        return {
-          _id,
-          firstName,
-          lastName,
-          location,
-          occupation,
-          picturePath,
-        };
-      }
-    );
-    res.status(200).json(friendList);
-  } catch (err) {
-    res.status(404).json({ error: errorMonitor.messsage });
+    res.status(500).json({ message: "Something is wrong" });
   }
 };

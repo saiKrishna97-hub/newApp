@@ -2,10 +2,11 @@ import React, { useEffect, useState } from "react";
 import { AppBar, Avatar, Button, Toolbar, Typography } from "@mui/material";
 import memories from "../../Images/memories.png";
 import { styled } from "@mui/system";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { createTheme } from "@mui/system";
 import { deepPurple } from "@mui/material/colors";
 import { useDispatch } from "react-redux";
+import decode from "jwt-decode";
 
 const Navbar = () => {
   const StyledAppBar = styled(AppBar)({
@@ -54,10 +55,17 @@ const Navbar = () => {
   const [user, setUser] = useState(JSON.parse(localStorage.getItem("profile")));
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const location = useLocation(); // this state helps in automatically setting the data whenever location change happened
 
   useEffect(() => {
+    const token = user?.token;
+    if (token) {
+      const decodedToken = decode(token);
+      if (decodedToken.exp * 1000 < new Date().getTime()) logout();
+    }
     setUser(JSON.parse(localStorage.getItem("profile")));
-  }, [user]);
+  }, [location]);
+
   const logout = () => {
     dispatch({ type: "LOGOUT" });
     navigate("/auth");
@@ -72,12 +80,12 @@ const Navbar = () => {
         <StyledImg src={memories} alt="memories" height="60"></StyledImg>
       </div>
       <StyledToolbar>
-        {user ? (
+        {user?.result ? (
           <StyledProfile>
-            <StyledAvatar alt={user.userInfo.name} src={user.userInfo.picture}>
-              {user.userInfo.name.charAt(0)}
+            <StyledAvatar alt={user?.result.name} src={user?.result.picture}>
+              {user?.result.name.charAt(0)}
             </StyledAvatar>
-            <StyledUserName variant="h6">{user.userInfo.name}</StyledUserName>
+            <StyledUserName variant="h6">{user?.result.name}</StyledUserName>
             <Button color="secondary" onClick={logout}>
               Logout
             </Button>

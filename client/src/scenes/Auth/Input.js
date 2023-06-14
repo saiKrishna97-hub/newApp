@@ -5,8 +5,8 @@ import VisibilityOff from "@mui/icons-material/VisibilityOff";
 
 const Input = ({
   name,
-  half,
   handleChange,
+  half,
   label,
   type,
   autoFocus,

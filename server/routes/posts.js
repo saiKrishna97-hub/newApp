@@ -6,13 +6,14 @@ import {
   deletePost,
   likePost,
 } from "../controllers/posts.js";
+import verifyToken from "../middleware/auth.js";
 
 const router = express.Router();
 
 router.get("/", getPosts);
-router.post("/", createPost);
-router.patch("/:id", updatePost);
-router.delete("/:id/delete", deletePost);
-router.patch("/:id/likePost", likePost);
+router.post("/", verifyToken, createPost);
+router.patch("/:id", verifyToken, updatePost);
+router.delete("/:id/delete", verifyToken, deletePost);
+router.patch("/:id/likePost", verifyToken, likePost);
 
 export default router;
