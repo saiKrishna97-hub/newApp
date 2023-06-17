@@ -10,10 +10,27 @@ export const getPosts = async (req, res) => {
   }
 };
 
+export const getPostsBysearch = async (req, res) => {
+  const { searchQuery, tags } = req.query;
+  try {
+    const title = new RegExp(searchQuery, "i"); // here i means where are stating to ignore casesensitive
+    const posts = await PostMessage.find({
+      $or: [{ title }, { tags: { $in: tags.split(",") } }],
+    });
+    res.status(200).json({ data: posts });
+  } catch (error) {
+    res.status(404).json({ message: error.message });
+  }
+};
+
 export const createPost = async (req, res) => {
   const post = req.body;
 
-  const newPost = PostMessage(post);
+  const newPost = PostMessage({
+    ...post,
+    creator: req.userId,
+    createdAt: new Date().toISOString(),
+  });
   try {
     await newPost.save();
     res.status(201).json(newPost);
@@ -61,14 +78,19 @@ export const deletePost = async (req, res) => {
 export const likePost = async (req, res) => {
   const { id } = req.params;
   try {
+    if (!req.userId) return res.json({ message: "User is unathunticated" });
     if (!mongoose.Types.ObjectId.isValid(id))
       return res.status(404).send("No post for that Id");
     const post = await PostMessage.findById(id);
-    const likedPost = await PostMessage.findByIdAndUpdate(
-      id,
-      { likeCount: post.likeCount + 1 },
-      { new: true }
-    );
+    const index = post.likes.findIndex((id) => id === String(req.userId));
+    if (index === -1) {
+      post.likes.push(req.userId);
+    } else {
+      post.likes = post.likes.filter((id) => id !== String(req.userId));
+    }
+    const likedPost = await PostMessage.findByIdAndUpdate(id, post, {
+      new: true,
+    });
     res.status(200).json(likedPost);
   } catch (error) {
     res.status(406).json({ message: error.message });

@@ -59,23 +59,27 @@ const Post = ({ post, setCurrentId }) => {
   const handleDelete = (postId) => {
     dispatch(deletePost(postId));
   };
+  const user = JSON.parse(localStorage.getItem("profile"));
   return (
-    <StyledCard>
+    <StyledCard raised elevation={6}>
       <StyledMedia image={post.selectedFile} />
       <StyledOverlay>
-        <Typography variant="h6">{post.creator}</Typography>
+        <Typography variant="h6">{post.name}</Typography>
         <Typography variant="body2">
           {moment(post.createdAt).fromNow()}
         </Typography>
       </StyledOverlay>
       <StyledOverlay2>
-        <Button
-          style={{ color: "white" }}
-          size="small"
-          onClick={() => setCurrentId(post._id)}
-        >
-          <MoreHoriZIcon fontSize="default" />
-        </Button>
+        {(user?.result?.sub === post.creator ||
+          user?.result?._id === post.creator) && (
+          <Button
+            style={{ color: "white" }}
+            size="small"
+            onClick={() => setCurrentId(post._id)}
+          >
+            <MoreHoriZIcon fontSize="default" />
+          </Button>
+        )}
       </StyledOverlay2>
       <StyledDetails>
         <Typography variant="body2" color="textSecondary">
@@ -98,18 +102,21 @@ const Post = ({ post, setCurrentId }) => {
         >
           <ThumbUpAltIcon fontSize="small" />
           &nbsp; Like &nbsp; {/* non breakable space */}
-          {post.likeCount}
+          {post.likes.length}
         </Button>
-        <Button
-          size="small"
-          color="primary"
-          onClick={() => {
-            handleDelete(post._id);
-          }}
-        >
-          <DeleteIcon fontSize="small" />
-          &nbsp; Delete
-        </Button>
+        {(user?.result?.sub === post.creator ||
+          user?.result?._id === post.creator) && (
+          <Button
+            size="small"
+            color="primary"
+            onClick={() => {
+              handleDelete(post._id);
+            }}
+          >
+            <DeleteIcon fontSize="small" />
+            &nbsp; Delete
+          </Button>
+        )}
       </StyledActions>
     </StyledCard>
   );

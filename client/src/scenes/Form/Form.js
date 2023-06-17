@@ -6,6 +6,7 @@ import { createTheme } from "@mui/system";
 import { styled } from "@mui/system";
 import { createPost, updatePost } from "../../actions/posts.js";
 import { useDispatch, useSelector } from "react-redux";
+import { useLocation } from "react-router-dom";
 
 const theme = createTheme({});
 const StyledPaper = styled(Paper)({
@@ -22,12 +23,13 @@ const StyledFileInput = styled("div")({
   margin: "10px 0px",
 });
 const Form = ({ currentId, setCurrentId }) => {
+  const user = JSON.parse(localStorage.getItem("profile"));
   const post = useSelector((state) =>
     currentId ? state.posts.find((p) => p._id === currentId) : null
   );
   const dispatch = useDispatch();
+  const location = useLocation();
   const [postData, setPostData] = useState({
-    creator: "",
     title: "",
     message: "",
     tags: "",
@@ -35,35 +37,45 @@ const Form = ({ currentId, setCurrentId }) => {
   });
   useEffect(() => {
     if (post) setPostData(post);
-  }, [post]);
+  }, [post, location]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (currentId === 0) {
-      dispatch(createPost(postData));
+      dispatch(createPost({ ...postData, name: user?.result?.name }));
       clear();
     } else {
-      dispatch(updatePost(currentId, postData));
+      dispatch(
+        updatePost(currentId, { ...postData, name: user?.result?.name })
+      );
       clear();
     }
   };
   const clear = () => {
     setCurrentId(0);
     setPostData({
-      creator: "",
       title: "",
       message: "",
       tags: "",
       selectedFile: "",
     });
   };
+  if (!user?.result?.name) {
+    return (
+      <StyledPaper>
+        <Typography variant="h6" align="center">
+          Please Sign In to create your own memories and like other's memories.
+        </Typography>
+      </StyledPaper>
+    );
+  }
   return (
-    <StyledPaper>
+    <StyledPaper raised elevation={6}>
       <StyledForm autoComplete="off" noValidate onSubmit={handleSubmit}>
         <Typography variant="h6">
           {currentId ? "Editing" : "Creating"} a Memory
         </Typography>
-        <TextField
+        {/* <TextField
           sx={{ margin: theme.spacing(1) }}
           name="creator"
           variant="outlined"
@@ -73,7 +85,7 @@ const Form = ({ currentId, setCurrentId }) => {
           onChange={(event) =>
             setPostData({ ...postData, creator: event.target.value })
           }
-        />
+        /> */}
         <TextField
           sx={{ margin: theme.spacing(1) }}
           name="title"

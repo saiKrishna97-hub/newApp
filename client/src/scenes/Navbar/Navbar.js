@@ -24,6 +24,7 @@ const Navbar = () => {
   const StyledTypography = styled(Typography)({
     color: "rgba(0,183,255, 1)",
     textDecoration: "none",
+    fontFamily: "Dancing Script",
   });
   const StyledToolbar = styled(Toolbar)({
     display: "flex",
@@ -57,6 +58,11 @@ const Navbar = () => {
   const dispatch = useDispatch();
   const location = useLocation(); // this state helps in automatically setting the data whenever location change happened
 
+  const logout = () => {
+    dispatch({ type: "LOGOUT" });
+    navigate("/");
+    setUser(null);
+  };
   useEffect(() => {
     const token = user?.token;
     if (token) {
@@ -65,12 +71,6 @@ const Navbar = () => {
     }
     setUser(JSON.parse(localStorage.getItem("profile")));
   }, [location]);
-
-  const logout = () => {
-    dispatch({ type: "LOGOUT" });
-    navigate("/auth");
-    setUser(null);
-  };
   return (
     <StyledAppBar position="static" color="inherit">
       <div>
@@ -86,12 +86,17 @@ const Navbar = () => {
               {user?.result.name.charAt(0)}
             </StyledAvatar>
             <StyledUserName variant="h6">{user?.result.name}</StyledUserName>
-            <Button color="secondary" onClick={logout}>
+            <Button color="secondary" onClick={logout} variant="contained">
               Logout
             </Button>
           </StyledProfile>
         ) : (
-          <Button component={Link} to="/auth" color="primary">
+          <Button
+            component={Link}
+            to="/auth"
+            color="primary"
+            variant="contained"
+          >
             Sign In
           </Button>
         )}
