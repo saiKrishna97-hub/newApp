@@ -6,7 +6,7 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { createTheme } from "@mui/system";
 import { deepPurple } from "@mui/material/colors";
 import { useDispatch } from "react-redux";
-import decode from "jwt-decode";
+// import decode from "jwt-decode";
 
 const Navbar = () => {
   const StyledAppBar = styled(AppBar)({
@@ -65,10 +65,10 @@ const Navbar = () => {
   };
   useEffect(() => {
     const token = user?.token;
-    if (token) {
-      const decodedToken = decode(token);
-      if (decodedToken.exp * 1000 < new Date().getTime()) logout();
-    }
+    // if (token) {
+    //   const decodedToken = decode(token);
+    //   if (decodedToken.exp * 1000 < new Date().getTime()) logout();
+    // }
     setUser(JSON.parse(localStorage.getItem("profile")));
   }, [location]);
   return (
