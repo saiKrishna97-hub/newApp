@@ -4,9 +4,9 @@ import { Grid, CircularProgress } from "@mui/material";
 import Post from "../Posts/Post/Post.js";
 
 const Posts = ({ setCurrentId }) => {
-  const { posts } = useSelector((state) => state.posts);
-  console.log(posts);
-  return !posts?.length ? (
+  const { posts, isLoading } = useSelector((state) => state.posts);
+  if (!posts?.length && !isLoading) return "NO POSTS";
+  return isLoading ? (
     <CircularProgress />
   ) : (
     <Grid container alignItems="stretch" spacing={3}>

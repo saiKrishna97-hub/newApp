@@ -1,5 +1,6 @@
 import express from "express";
 import {
+  getPost,
   getPosts,
   getPostsBysearch,
   createPost,
@@ -11,6 +12,7 @@ import verifyToken from "../middleware/auth.js";
 
 const router = express.Router();
 
+router.get("/:id", getPost);
 router.get("/", getPosts);
 router.get("/search", getPostsBysearch);
 router.post("/", verifyToken, createPost);
